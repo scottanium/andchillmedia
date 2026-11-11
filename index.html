@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#121218"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Free Music"/>
+<link rel="manifest" href="./manifest.webmanifest"/>
+<link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png"/>
+<title>Free Music</title>
+<style>
+:root{--bg:#121218;--elev:#1c1c26;--elev2:#262633;--text:#f2f2f7;--muted:#9a9aad;--accent:#78b4ff;--border:#2e2e3a;--danger:#ff6b6b}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100%}
+body{padding-bottom:120px}
+header{position:sticky;top:0;z-index:5;background:rgba(18,18,24,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:12px 16px}
+h1{margin:0;font-size:1.15rem;font-weight:650}
+.sub{color:var(--muted);font-size:.8rem;margin-top:2px}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.nav button,.chip{background:var(--elev);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:6px 12px;font-size:.85rem;cursor:pointer}
+.nav button.active,.chip.active{background:var(--accent);color:#0b1220;border-color:transparent;font-weight:600}
+input[type=search]{flex:1;min-width:140px;background:var(--elev);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 12px}
+main{padding:12px 16px;max-width:900px;margin:0 auto}
+.list{display:flex;flex-direction:column;gap:6px}
+.row{display:flex;gap:10px;align-items:center;background:var(--elev);border:1px solid var(--border);border-radius:12px;padding:10px 12px;cursor:pointer}
+.row:hover{background:var(--elev2)}
+.row .meta{flex:1;min-width:0}
+.row .title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .detail{color:var(--muted);font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actions{display:flex;gap:6px;flex-shrink:0}
+.actions a,.actions button{background:transparent;border:1px solid var(--border);color:var(--accent);border-radius:8px;padding:4px 8px;font-size:.75rem;text-decoration:none;cursor:pointer}
+.player{position:fixed;left:0;right:0;bottom:0;background:rgba(28,28,38,.96);border-top:1px solid var(--border);padding:10px 14px 14px;backdrop-filter:blur(12px);z-index:10}
+.now{font-size:.85rem;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.controls button{background:var(--elev2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 12px;cursor:pointer}
+.controls button.primary{background:var(--accent);color:#0b1220;border:none;font-weight:700}
+input[type=range]{flex:1;min-width:100px}
+.vol{width:90px}
+.empty{color:var(--muted);padding:24px 8px}
+
+#noticeGate{position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto}
+#noticeGate.hidden{display:none}
+#noticeBox{max-width:560px;width:100%;background:var(--elev);border:1px solid var(--border);border-radius:16px;padding:24px}
+#noticeBox pre{white-space:pre-wrap;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:0.95rem;line-height:1.45;margin:0 0 20px;color:var(--text)}
+#noticeActions{display:flex;gap:12px;flex-wrap:wrap}
+#noticeActions button{border-radius:10px;padding:10px 18px;font-size:0.95rem;cursor:pointer;border:1px solid var(--border);font-family:inherit}
+#noticeAgree{background:var(--accent);color:#0b1220;border:none;font-weight:700}
+#noticeExit{background:var(--elev2);color:var(--text)}
+#exitScreen{position:fixed;inset:0;z-index:10001;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px;text-align:center}
+#exitScreen.show{display:flex;flex-direction:column;gap:16px}
+#appRoot.locked{visibility:hidden;pointer-events:none;height:0;overflow:hidden;padding:0;margin:0}
+
+</style>
+</head>
+<body>
+
+<div id="noticeGate" aria-modal="true" role="dialog" aria-label="Before you use this software">
+  <div id="noticeBox">
+    <pre id="noticeText"></pre>
+    <div id="noticeActions">
+      <button type="button" id="noticeAgree">I Agree</button>
+      <button type="button" id="noticeExit">Exit</button>
+    </div>
+  </div>
+</div>
+<div id="exitScreen">
+  <div style="max-width:420px">
+    <p style="font-size:1.05rem;margin:0 0 8px">You must agree to use this app</p>
+    <button type="button" id="reopenNotice" style="border-radius:10px;padding:10px 18px;background:var(--accent);color:#0b1220;border:none;font-weight:700;cursor:pointer">Show notice again</button>
+  </div>
+</div>
+
+<div id="appRoot" class="locked">
+<header>
+  <h1>Free Music</h1>
+  <div class="sub">Creative Commons &amp; public-domain streams from Internet Archive</div>
+  <div class="nav" id="crumbs"></div>
+  <div class="nav" style="margin-top:8px">
+    <input id="q" type="search" placeholder="Search artists, albums, tracks…" />
+    <button type="button" id="btnShuffle">Shuffle</button>
+    <button type="button" id="btnQueue">Queue</button>
+  </div>
+</header>
+<main>
+  <div id="view" class="list"></div>
+</main>
+<div class="player">
+  <div class="now" id="now">Nothing playing</div>
+  <div class="controls">
+    <button type="button" id="prev">Prev</button>
+    <button type="button" class="primary" id="play">Play</button>
+    <button type="button" id="next">Next</button>
+    <input id="seek" type="range" min="0" max="1000" value="0"/>
+    <span id="time" class="sub">0:00</span>
+    <input id="vol" class="vol" type="range" min="0" max="1" step="0.01" value="0.9"/>
+  </div>
+  <audio id="audio" preload="metadata"></audio>
+</div>
+</div>
+<script src="./catalog.js"></script>
+<script>
+
+const NOTICE_BODY = 'Before you use this software\n\nThis software is free and provided "AS IS," with no warranty of any kind.\nYou use it entirely at your own risk. The author is not responsible for any\ndamage, data loss, account issues, or other problems that come from using it.\n\nSome tools may interact with third-party games or services. Using them may\nbreak those services\' rules, and you alone are responsible for how you use\nthis software.\n\nBy downloading, installing, or using this software, you agree to these terms\nand to the full license in the LICENSE file.\n\n';
+const AGREE_KEY = 'freeMusicUserNoticeAgreed_v1';
+const noticeTextEl = document.getElementById('noticeText');
+const noticeGate = document.getElementById('noticeGate');
+const exitScreen = document.getElementById('exitScreen');
+const appRoot = document.getElementById('appRoot');
+noticeTextEl.textContent = NOTICE_BODY;
+
+function hasAgreed(){
+  try { return localStorage.getItem(AGREE_KEY) === '1'; } catch(e){ return false; }
+}
+function setAgreed(){
+  try { localStorage.setItem(AGREE_KEY, '1'); } catch(e){}
+}
+function unlockApp(){
+  noticeGate.classList.add('hidden');
+  exitScreen.classList.remove('show');
+  if(appRoot){ appRoot.classList.remove('locked'); appRoot.style.visibility=''; appRoot.style.pointerEvents=''; }
+}
+function lockApp(){
+  if(appRoot){ appRoot.classList.add('locked'); }
+  noticeGate.classList.remove('hidden');
+}
+function showExit(){
+  noticeGate.classList.add('hidden');
+  exitScreen.classList.add('show');
+  if(appRoot){ appRoot.classList.add('locked'); }
+  try { window.close(); } catch(e){}
+}
+document.getElementById('noticeAgree').onclick = function(){ setAgreed(); unlockApp(); };
+document.getElementById('noticeExit').onclick = function(){ showExit(); };
+document.getElementById('reopenNotice').onclick = function(){
+  exitScreen.classList.remove('show');
+  lockApp();
+};
+if(hasAgreed()){ unlockApp(); } else { lockApp(); }
+
+const CATALOG = window.FREE_MUSIC_CATALOG || [];
+const genres = [...new Set(CATALOG.map(t=>t.g))].sort();
+let view = {level:'genre', genre:null, artist:null, album:null};
+let queue = [];
+let qIndex = -1;
+let shuffle = false;
+const audio = document.getElementById('audio');
+const $ = (id)=>document.getElementById(id);
+
+function fmt(s){s=Math.floor(s||0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+
+function filtered(){
+  const q = ($('q').value||'').trim().toLowerCase();
+  let list = CATALOG;
+  if(q) list = list.filter(t => (t.g+t.ar+t.al+t.t).toLowerCase().includes(q));
+  return list;
+}
+
+function renderCrumbs(){
+  const el=$('crumbs'); el.innerHTML='';
+  const add=(label, fn, active)=>{
+    const b=document.createElement('button'); b.type='button'; b.textContent=label; if(active) b.className='active'; b.onclick=fn; el.appendChild(b);
+  };
+  add('Genres', ()=>{view={level:'genre',genre:null,artist:null,album:null}; render();}, view.level==='genre');
+  if(view.genre) add(view.genre, ()=>{view.level='artist'; view.artist=null; view.album=null; render();}, view.level==='artist');
+  if(view.artist) add(view.artist, ()=>{view.level='album'; view.album=null; render();}, view.level==='album');
+  if(view.album) add(view.album, ()=>{}, true);
+}
+
+function playList(list, start=0){
+  if(!list.length) return;
+  queue=list; qIndex=start; playCurrent();
+}
+
+function playCurrent(){
+  if(!hasAgreed()){ lockApp(); return; }
+  const t=queue[qIndex]; if(!t) return;
+  audio.src=t.u; audio.play().catch(()=>{});
+  $('now').textContent = t.ar+' — '+t.t+' · '+t.al;
+  $('play').textContent='Pause';
+  if(navigator.mediaSession){
+    navigator.mediaSession.metadata = new MediaMetadata({title:t.t, artist:t.ar, album:t.al});
+    navigator.mediaSession.setActionHandler('previoustrack', ()=>$('prev').click());
+    navigator.mediaSession.setActionHandler('nexttrack', ()=>$('next').click());
+    navigator.mediaSession.setActionHandler('play', ()=>audio.play());
+    navigator.mediaSession.setActionHandler('pause', ()=>audio.pause());
+  }
+}
+
+function render(){
+  renderCrumbs();
+  const root=$('view'); root.innerHTML='';
+  const list=filtered();
+  if(view.level==='genre'){
+    const gs=[...new Set(list.map(t=>t.g))].sort();
+    gs.forEach(g=>{
+      const count=list.filter(t=>t.g===g).length;
+      const row=document.createElement('div'); row.className='row';
+      row.innerHTML=`<div class="meta"><div class="title">${g}</div><div class="detail">${count} tracks</div></div>
+        <div class="actions"><button type="button" data-playgenre="${g}">Play</button></div>`;
+      row.onclick=(e)=>{ if(e.target.closest('[data-playgenre]')){ playList(list.filter(t=>t.g===g).sort((a,b)=>(a.d||'').localeCompare(b.d||'')||a.n-b.n)); return;} view={level:'artist',genre:g,artist:null,album:null}; render();};
+      root.appendChild(row);
+    });
+  } else if(view.level==='artist'){
+    const arts=[...new Set(list.filter(t=>t.g===view.genre).map(t=>t.ar))].sort((a,b)=>a.localeCompare(b));
+    arts.forEach(ar=>{
+      const tracks=list.filter(t=>t.g===view.genre&&t.ar===ar);
+      const albums=[...new Set(tracks.map(t=>t.al))].length;
+      const row=document.createElement('div'); row.className='row';
+      row.innerHTML=`<div class="meta"><div class="title">${ar}</div><div class="detail">${albums} albums · ${tracks.length} tracks</div></div>`;
+      row.onclick=()=>{view.level='album'; view.artist=ar; view.album=null; render();};
+      root.appendChild(row);
+    });
+  } else if(view.level==='album'){
+    const tracks=list.filter(t=>t.g===view.genre&&t.ar===view.artist);
+    const albums=[...new Set(tracks.map(t=>t.al))];
+    albums.sort((a,b)=>{
+      const da=tracks.find(t=>t.al===a)?.d||'9999'; const db=tracks.find(t=>t.al===b)?.d||'9999';
+      return da.localeCompare(db)||a.localeCompare(b);
+    });
+    albums.forEach(al=>{
+      const ts=tracks.filter(t=>t.al===al).sort((a,b)=>a.n-b.n);
+      const d=ts[0]?.d||'';
+      const z=ts[0]?.z||'';
+      const row=document.createElement('div'); row.className='row';
+      row.innerHTML=`<div class="meta"><div class="title">${al}</div><div class="detail">${d||'Unknown date'} · ${ts.length} tracks</div></div>
+        <div class="actions">${z?`<a href="${z}" download>Album zip</a>`:''}<button type="button" data-play>Play</button></div>`;
+      row.onclick=(e)=>{ if(e.target.closest('[data-play]')){ playList(ts); return;} if(e.target.closest('a')) return; view.level='track'; view.album=al; render();};
+      root.appendChild(row);
+    });
+  } else {
+    const ts=list.filter(t=>t.g===view.genre&&t.ar===view.artist&&t.al===view.album).sort((a,b)=>a.n-b.n);
+    ts.forEach((t,i)=>{
+      const row=document.createElement('div'); row.className='row';
+      row.innerHTML=`<div class="meta"><div class="title">${t.n? t.n+'. ':''}${t.t}</div><div class="detail">${t.ar}</div></div>
+        <div class="actions"><a href="${t.u}" download>Download</a><button type="button" data-play>Play</button></div>`;
+      row.onclick=(e)=>{ if(e.target.closest('a')) return; playList(ts,i); };
+      root.appendChild(row);
+    });
+  }
+  if(!root.children.length){ root.innerHTML='<div class="empty">No matches.</div>'; }
+}
+
+$('q').oninput=()=>render();
+$('btnShuffle').onclick=()=>{shuffle=!shuffle; $('btnShuffle').classList.toggle('active',shuffle);};
+$('btnQueue').onclick=()=>{view.level='track'; /* show queue as list */ const root=$('view'); root.innerHTML='';
+  if(!queue.length){root.innerHTML='<div class="empty">Queue empty.</div>'; return;}
+  queue.forEach((t,i)=>{
+    const row=document.createElement('div'); row.className='row'; if(i===qIndex) row.style.outline='1px solid var(--accent)';
+    row.innerHTML=`<div class="meta"><div class="title">${t.t}</div><div class="detail">${t.ar} · ${t.al}</div></div>`;
+    row.onclick=()=>{qIndex=i; playCurrent();};
+    root.appendChild(row);
+  });
+};
+$('play').onclick=()=>{ if(audio.paused){ if(!audio.src && queue[qIndex]) playCurrent(); else audio.play(); $('play').textContent='Pause';} else {audio.pause(); $('play').textContent='Play';}};
+$('prev').onclick=()=>{ if(qIndex>0){qIndex--; playCurrent();} };
+$('next').onclick=()=>{
+  if(shuffle && queue.length){ qIndex=Math.floor(Math.random()*queue.length); playCurrent(); return; }
+  if(qIndex<queue.length-1){qIndex++; playCurrent();}
+};
+audio.addEventListener('timeupdate',()=>{ if(audio.duration){ $('seek').value=Math.floor(1000*audio.currentTime/audio.duration); $('time').textContent=fmt(audio.currentTime);} });
+audio.addEventListener('ended',()=>$('next').click());
+$('seek').oninput=()=>{ if(audio.duration) audio.currentTime = ($('seek').value/1000)*audio.duration; };
+$('vol').oninput=()=>{ audio.volume=parseFloat($('vol').value); };
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+render();
+</script>
+</body>
+</html>
