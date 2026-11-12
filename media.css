@@ -25,6 +25,8 @@ body.media-mode main{max-width:1400px}
 .poster img{width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:1}
 .badge{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.75);color:#fff;border-radius:6px;padding:2px 6px;font-size:.7rem;font-weight:700;z-index:2}
 .badge.free{left:auto;right:6px;background:#1f9d55}
+.badge.paid{left:auto;right:6px;background:#c2410c}
+.badge.na{left:auto;right:6px;background:rgba(0,0,0,.62);color:#d0d0d8;font-weight:650}
 .card .ci{padding:6px 8px 8px}
 .card .ct{font-weight:600;font-size:.85rem;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .card .cm{color:var(--muted);font-size:.72rem;margin-top:3px}
@@ -59,3 +61,19 @@ body.media-mode main{max-width:1400px}
 .prov{flex-wrap:wrap}
 .prov .pn{flex:1 1 140px}
 .prov .pa{display:flex;gap:6px;flex-wrap:wrap}
+
+.prov .pn{flex:1 1 140px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
+.prov .pname{font-size:.9rem;min-width:0;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.clabels{display:flex;flex-wrap:wrap;gap:4px}
+.clabel{display:inline-block;border-radius:999px;padding:2px 7px;font-size:.68rem;font-weight:700;letter-spacing:.01em;white-space:nowrap;line-height:1.3}
+.clabel.free,.clabel.ads{background:#1f9d55;color:#fff}
+.clabel.sub{background:#d97706;color:#fff}
+.clabel.rent,.clabel.buy{background:#d64545;color:#fff}
+.prov a.primary.free,.prov a.primary.ads{background:#1f9d55;color:#fff}
+.prov a.primary.sub{background:#d97706;color:#fff}
+.prov a.primary.rent,.prov a.primary.buy{background:#d64545;color:#fff}
+.wsum{margin:8px 0 10px;padding:9px 12px;border-radius:10px;font-size:.9rem;font-weight:650;line-height:1.35}
+.wsum.free{background:rgba(31,157,85,.18);color:#8be0b0;border:1px solid rgba(31,157,85,.45)}
+.wsum.paid{background:rgba(194,65,12,.16);color:#f6b184;border:1px solid rgba(194,65,12,.45)}
+.wsum.none{background:var(--elev);color:var(--muted);border:1px solid var(--border)}
+@media (max-width:520px){.prov a{font-size:.75rem;padding:5px 7px}}

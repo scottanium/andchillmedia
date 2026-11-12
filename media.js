@@ -126,7 +126,49 @@ function apply(){
   $m('mCount').textContent=`${list.length.toLocaleString()} of ${DATA[kind].length.toLocaleString()} ${kind==='movie'?'movies':'TV shows'}`;
   s.shown=60;renderGrid(true);
 }
-function badge(x){if(!x.w)return '';if(x.w.f||x.w.a)return '<span class="badge free">FREE</span>';return '';}
+const COST={
+  f:{label:'Free',btn:'Watch free',cls:'free'},
+  a:{label:'Free with ads',btn:'Watch free (ads)',cls:'ads'},
+  s:{label:'Needs subscription',btn:'Watch with subscription',cls:'sub'},
+  r:{label:'Rent (paid)',btn:'Rent',cls:'rent'},
+  b:{label:'Buy (paid)',btn:'Buy',cls:'buy'}
+};
+const COST_ORDER=['f','a','s','r','b'];
+function providerCats(x){
+  const map=new Map();
+  if(!x.w)return map;
+  for(const c of COST_ORDER){
+    const ids=x.w[c]; if(!ids)continue;
+    for(const p of ids){ if(!map.has(p)) map.set(p,[]); map.get(p).push(c); }
+  }
+  return map;
+}
+function bestCat(cats){return COST_ORDER.find(c=>cats.includes(c));}
+function cleanProvName(n){return String(n||'').replace(/ (Store|with Ads|Standard with Ads|Basic with Ads)$/,'');}
+function watchSummary(x,P){
+  if(!x.w) return {cls:'none',text:'Not currently streaming in the US'};
+  const names=[];
+  const seen=new Set();
+  for(const c of ['f','a']){
+    for(const p of (x.w[c]||[])){
+      const n=cleanProvName((P[p]||['Provider '+p])[0]);
+      if(!n||seen.has(n)) continue;
+      seen.add(n); names.push(n);
+    }
+  }
+  if(names.length){
+    let list=names;
+    if(list.length>5) list=list.slice(0,5).concat(['and '+(names.length-5)+' more']);
+    return {cls:'free',text:'✅ Free to watch on '+list.join(', ')};
+  }
+  if(x.w.s||x.w.r||x.w.b) return {cls:'paid',text:'💲 Not free — subscription, rent or buy only'};
+  return {cls:'none',text:'Not currently streaming in the US'};
+}
+function badge(x){
+  if(!x.w) return '<span class="badge na">N/A</span>';
+  if(x.w.f||x.w.a) return '<span class="badge free">FREE</span>';
+  return '<span class="badge paid">PAID</span>';
+}
 function meta(x){const p=[];if(x.y)p.push(x.y);if(x.k==='tv'&&x.s)p.push(x.s+' season'+(x.s>1?'s':''));else if(x.r)p.push(x.r+'m');if(x.c)p.push(x.c);return p.join(' · ');}
 function renderGrid(reset){
   const g=$m('mGrid');const s=st[cur];
@@ -145,15 +187,28 @@ function openSheet(x,opts){
   const m=[];if(x.y)m.push(x.k==='tv'?(x.y+(x.end?'–'+x.end:'–')):x.y);
   if(x.k==='tv'){if(x.s)m.push(`${x.s} season${x.s>1?'s':''}${x.e?`, ${x.e} episodes`:''}`);if(x.r)m.push(`~${x.r} min/episode`);}else if(x.r)m.push(`${Math.floor(x.r/60)?Math.floor(x.r/60)+'h ':''}${x.r%60}m`);
   if(x.c)m.push(x.c);
-  let w='';
-  if(x.w){for(const [c,l] of CAT){if(!x.w[c])continue;
-    w+=`<div class="wgroup"><h3>${l}</h3><div class="provs">`+x.w[c].map(p=>{const pr=P[p]||['Provider '+p,''];const su=searchUrl(pr[0],x.t);
-      const sn=pr[0].replace(/ (Store|with Ads|Standard with Ads|Basic with Ads)$/,'');
-      return `<div class="prov">${pr[1]?`<img loading="lazy" alt="" src="${IMG}w92${pr[1]}">`:''}<span class="pn">${esc(pr[0])}</span><span class="pa"><a class="primary" href="${link}" target="_blank" rel="noopener" data-hist="watch" data-svc="${esc(pr[0])}">Watch</a>${su?`<a href="${esc(su)}" target="_blank" rel="noopener" data-hist="search" data-svc="${esc(sn)}">Search on ${esc(sn)}</a>`:''}</span></div>`;}).join('')+`</div></div>`;}}
-  else w=`<p class="smeta">No US streaming, rental, or purchase options are listed right now.</p>`;
+  const sum=watchSummary(x,P);
+  let w=`<div class="wsum ${sum.cls}">${esc(sum.text)}</div>`;
+  if(x.w){
+    const map=providerCats(x);
+    const pids=[...map.keys()].sort((a,b)=>{
+      const ia=COST_ORDER.indexOf(bestCat(map.get(a))), ib=COST_ORDER.indexOf(bestCat(map.get(b)));
+      if(ia!==ib) return ia-ib;
+      return ((P[a]||[''])[0]).localeCompare((P[b]||[''])[0]);
+    });
+    w+=`<div class="wgroup"><div class="provs">`+pids.map(p=>{
+      const pr=P[p]||['Provider '+p,''];
+      const cats=map.get(p);
+      const cost=COST[bestCat(cats)];
+      const su=searchUrl(pr[0],x.t);
+      const sn=cleanProvName(pr[0]);
+      const labels=cats.map(c=>`<span class="clabel ${COST[c].cls}">${esc(COST[c].label)}</span>`).join('');
+      return `<div class="prov">${pr[1]?`<img loading="lazy" alt="" src="${IMG}w92${pr[1]}">`:''}<span class="pn"><span class="pname">${esc(pr[0])}</span><span class="clabels">${labels}</span></span><span class="pa"><a class="primary ${cost.cls}" href="${link}" target="_blank" rel="noopener" data-hist="watch" data-svc="${esc(pr[0])}">${esc(cost.btn)}</a>${su?`<a href="${esc(su)}" target="_blank" rel="noopener" data-hist="search" data-svc="${esc(sn)}">Search on ${esc(sn)}</a>`:''}</span></div>`;
+    }).join('')+`</div></div>`;
+  }
   sheetItem=x;
   $m('sheetBody').innerHTML=`<div class="shead">${posterTile(x,'w342','sposter')}</div><div><h2>${esc(x.t)}</h2><div class="smeta">${esc(m.join(' · '))}<br>${x.v?`★ ${x.v.toFixed(1)}/10 (${x.n.toLocaleString()} votes)`:'Not yet rated'}<br>${esc(gn)}${x.l?`<br>Language: ${esc(ln(x.l))}`:''}</div></div></div>
-   <p class="sov">${esc(x.o||'No overview available.')}</p><h2 style="font-size:1.05rem;margin:18px 0 4px">Where to watch (US)</h2>${w}
+   <p class="sov">${esc(x.o||'No overview available.')}</p><h2 id="wHead" style="font-size:1.05rem;margin:18px 0 4px">Where to watch (US)</h2>${w}
    <p class="smeta" style="margin-top:14px"><a href="${link}" target="_blank" rel="noopener" style="color:var(--accent)">All options on TMDB</a> · Streaming availability data provided by JustWatch.</p>`;
   $m('sheet').classList.add('show');$m('sheetBox').scrollTop=0;$m('sheetClose').focus();
   if(!opts||!opts.silent) recordWatch(x,{ev:'sheet'});

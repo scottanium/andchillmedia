@@ -1,4 +1,4 @@
-const CACHE = 'free-music-shell-v6';
+const CACHE = 'free-music-shell-v7';
 const DATA_CACHE = 'free-media-data-v1';
 const IMG_CACHE = 'free-media-img-v1';
 const IMG_MAX = 300;
