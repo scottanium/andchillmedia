@@ -1,6 +1,6 @@
 {
-  "name": "Free Media",
-  "short_name": "Free Media",
+  "name": "andchillmedia",
+  "short_name": "andchillmedia",
   "description": "Free music to stream and download, plus where to watch movies and TV shows",
   "start_url": "./index.html",
   "scope": "./",
