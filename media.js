@@ -2,6 +2,30 @@
 const IMG='https://image.tmdb.org/t/p/';
 const $m=(id)=>document.getElementById(id);
 const esc=(s)=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function hue(s){let h=0;s=String(s||'');for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)%360;}
+function initial(s){const t=String(s||'').trim();return (t[0]||'?').toUpperCase();}
+const HIST_WATCH='acm_watchHistory_v1';
+const HIST_MAX=500;
+let sheetItem=null;
+function loadWatch(){try{const a=JSON.parse(localStorage.getItem(HIST_WATCH)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+function saveWatch(a){try{localStorage.setItem(HIST_WATCH,JSON.stringify(a.slice(0,HIST_MAX)));}catch(e){}}
+function recordWatch(x,extra){
+  if(!x)return;
+  const entry={i:x.i,k:x.k,t:x.t,pp:x.pp||'',ts:Date.now(),ev:(extra&&extra.ev)||'sheet'};
+  if(extra&&extra.svc)entry.svc=extra.svc;
+  const arr=loadWatch();
+  arr.unshift(entry);
+  saveWatch(arr);
+  if(typeof window.renderHistory==='function'){
+    const hv=document.getElementById('histView');
+    if(hv&&!hv.classList.contains('hide')) window.renderHistory();
+  }
+}
+function posterTile(x,size,cls){
+  const ini=esc(initial(x.t));
+  const img=x.pp?`<img loading="lazy" decoding="async" alt="" src="${IMG}${size}${esc(x.pp)}" onerror="this.remove()">`:'';
+  return `<div class="${cls}" style="--h:${hue(x.t)}" data-initial="${ini}">${img}`;
+}
 const CAT=[['f','Free'],['a','Free with ads'],['s','Subscription'],['r','Rent'],['b','Buy']];
 const SEARCH=[
  [/netflix/i,'https://www.netflix.com/search?q='],
@@ -110,12 +134,12 @@ function renderGrid(reset){
   const from=+g.dataset.n,to=Math.min(list.length,s.shown);
   const frag=document.createDocumentFragment();
   for(let i=from;i<to;i++){const x=list[i];const b=document.createElement('button');b.type='button';b.className='card';b.dataset.i=i;
-    b.innerHTML=`<div class="poster">${x.pp?`<img loading="lazy" decoding="async" alt="" src="${IMG}w185${x.pp}">`:esc(x.t)}${x.v?`<span class="badge">★ ${x.v.toFixed(1)}</span>`:''}${badge(x)}</div><div class="ci"><div class="ct">${esc(x.t)}</div><div class="cm">${esc(meta(x))}</div></div>`;
+    b.innerHTML=`${posterTile(x,'w185','poster')}${x.v?`<span class="badge">★ ${x.v.toFixed(1)}</span>`:''}${badge(x)}</div><div class="ci"><div class="ct">${esc(x.t)}</div><div class="cm">${esc(meta(x))}</div></div>`;
     frag.appendChild(b);}
   g.appendChild(frag);g.dataset.n=to;
   if(!list.length)g.innerHTML='<div class="empty">No matches. Try removing a filter.</div>';
 }
-function openSheet(x){
+function openSheet(x,opts){
   const P=IDX.providers;const link=`https://www.themoviedb.org/${x.k}/${x.i}/watch?locale=US`;
   const gn=x.g.map(g=>IDX.genres[g]).filter(Boolean).join(', ');
   const m=[];if(x.y)m.push(x.k==='tv'?(x.y+(x.end?'–'+x.end:'–')):x.y);
@@ -124,20 +148,30 @@ function openSheet(x){
   let w='';
   if(x.w){for(const [c,l] of CAT){if(!x.w[c])continue;
     w+=`<div class="wgroup"><h3>${l}</h3><div class="provs">`+x.w[c].map(p=>{const pr=P[p]||['Provider '+p,''];const su=searchUrl(pr[0],x.t);
-      return `<div class="prov">${pr[1]?`<img loading="lazy" alt="" src="${IMG}w92${pr[1]}">`:''}<span class="pn">${esc(pr[0])}</span><span class="pa"><a class="primary" href="${link}" target="_blank" rel="noopener">Watch</a>${su?`<a href="${esc(su)}" target="_blank" rel="noopener">Search on ${esc(pr[0].replace(/ (Store|with Ads|Standard with Ads|Basic with Ads)$/,''))}</a>`:''}</span></div>`;}).join('')+`</div></div>`;}}
+      const sn=pr[0].replace(/ (Store|with Ads|Standard with Ads|Basic with Ads)$/,'');
+      return `<div class="prov">${pr[1]?`<img loading="lazy" alt="" src="${IMG}w92${pr[1]}">`:''}<span class="pn">${esc(pr[0])}</span><span class="pa"><a class="primary" href="${link}" target="_blank" rel="noopener" data-hist="watch" data-svc="${esc(pr[0])}">Watch</a>${su?`<a href="${esc(su)}" target="_blank" rel="noopener" data-hist="search" data-svc="${esc(sn)}">Search on ${esc(sn)}</a>`:''}</span></div>`;}).join('')+`</div></div>`;}}
   else w=`<p class="smeta">No US streaming, rental, or purchase options are listed right now.</p>`;
-  $m('sheetBody').innerHTML=`<div class="shead">${x.pp?`<img alt="" src="${IMG}w342${x.pp}">`:''}<div><h2>${esc(x.t)}</h2><div class="smeta">${esc(m.join(' · '))}<br>${x.v?`★ ${x.v.toFixed(1)}/10 (${x.n.toLocaleString()} votes)`:'Not yet rated'}<br>${esc(gn)}${x.l?`<br>Language: ${esc(ln(x.l))}`:''}</div></div></div>
+  sheetItem=x;
+  $m('sheetBody').innerHTML=`<div class="shead">${posterTile(x,'w342','sposter')}</div><div><h2>${esc(x.t)}</h2><div class="smeta">${esc(m.join(' · '))}<br>${x.v?`★ ${x.v.toFixed(1)}/10 (${x.n.toLocaleString()} votes)`:'Not yet rated'}<br>${esc(gn)}${x.l?`<br>Language: ${esc(ln(x.l))}`:''}</div></div></div>
    <p class="sov">${esc(x.o||'No overview available.')}</p><h2 style="font-size:1.05rem;margin:18px 0 4px">Where to watch (US)</h2>${w}
    <p class="smeta" style="margin-top:14px"><a href="${link}" target="_blank" rel="noopener" style="color:var(--accent)">All options on TMDB</a> · Streaming availability data provided by JustWatch.</p>`;
   $m('sheet').classList.add('show');$m('sheetBox').scrollTop=0;$m('sheetClose').focus();
+  if(!opts||!opts.silent) recordWatch(x,{ev:'sheet'});
 }
-function closeSheet(){$m('sheet').classList.remove('show');}
+function closeSheet(){$m('sheet').classList.remove('show');sheetItem=null;}
+async function openById(kind,id){
+  try{await load(kind);}catch(e){return false;}
+  const x=(DATA[kind]||[]).find(t=>t.i===id);
+  if(!x)return false;
+  openSheet(x,{silent:true});
+  return true;
+}
 async function show(kind){
   cur=kind;$m('mGrid').innerHTML='<div class="empty">Loading '+(kind==='movie'?'movies':'TV shows')+'…</div>';$m('mCount').textContent='';
   try{await load(kind);}catch(e){$m('mGrid').innerHTML='<div class="empty">Could not load data. Check your connection and tap Refresh.</div>';return;}
   if(cur!==kind)return;buildFilters(kind);apply();
 }
-window.FreeMedia={show};
+window.FreeMedia={show,openById};
 function wire(){
   const deb=(f,ms)=>{let t;return()=>{clearTimeout(t);t=setTimeout(f,ms);};};
   $m('mQ').addEventListener('input',deb(()=>{st[cur].q=$m('mQ').value;apply();},200));
@@ -154,6 +188,11 @@ function wire(){
   $m('mGrid').onclick=e=>{const b=e.target.closest('.card');if(b)openSheet(list[+b.dataset.i]);};
   $m('sheetClose').onclick=closeSheet;
   $m('sheet').onclick=e=>{if(e.target.id==='sheet')closeSheet();};
+  $m('sheetBody').addEventListener('click',e=>{
+    const a=e.target.closest('a[data-hist]');
+    if(!a||!sheetItem)return;
+    recordWatch(sheetItem,{ev:a.dataset.hist||'watch',svc:a.dataset.svc||''});
+  });
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
   const io=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting)&&cur&&DATA[cur]&&st[cur].shown<list.length){st[cur].shown+=60;renderGrid(false);}},{rootMargin:'800px'});
   io.observe($m('mSentinel'));
