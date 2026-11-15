@@ -183,6 +183,7 @@ input[type=range]{flex:1;min-width:100px}
 </div>
 </div>
 <script src="./catalog.js"></script>
+<script src="./catalog-more.js"></script>
 <script>
 
 const NOTICE_BODY = 'Before you use this software\n\nThis software is free and provided "AS IS," with no warranty of any kind.\nYou use it entirely at your own risk. The author is not responsible for any\ndamage, data loss, account issues, or other problems that come from using it.\n\nSome tools may interact with third-party games or services. Using them may\nbreak those services\' rules, and you alone are responsible for how you use\nthis software.\n\nBy downloading, installing, or using this software, you agree to these terms\nand to the full license in the LICENSE file.\n\n';
@@ -222,7 +223,7 @@ document.getElementById('reopenNotice').onclick = function(){
 };
 if(hasAgreed()){ unlockApp(); } else { lockApp(); }
 
-const CATALOG = window.FREE_MUSIC_CATALOG || [];
+const CATALOG = (window.FREE_MUSIC_CATALOG || []).concat(window.FREE_MUSIC_CATALOG_MORE || []);
 const genres = [...new Set(CATALOG.map(t=>t.g))].sort();
 let view = {level:'genre', genre:null, artist:null, album:null};
 let queue = [];

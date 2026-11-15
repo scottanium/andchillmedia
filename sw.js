@@ -1,8 +1,8 @@
-const CACHE = 'free-music-shell-v7';
-const DATA_CACHE = 'free-media-data-v1';
+const CACHE = 'free-music-shell-v8';
+const DATA_CACHE = 'free-media-data-v2';
 const IMG_CACHE = 'free-media-img-v1';
 const IMG_MAX = 300;
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './catalog.js', './LICENSE.txt', './media.js', './media.css', './tmdb-logo.svg'];
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './catalog.js', './catalog-more.js', './LICENSE.txt', './media.js', './media.css', './tmdb-logo.svg'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });
