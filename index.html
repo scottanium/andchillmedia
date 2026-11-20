@@ -99,8 +99,10 @@ input[type=range]{flex:1;min-width:100px}
       <button type="button" role="tab" class="active" data-tab="music" aria-selected="true">Music</button>
       <button type="button" role="tab" data-tab="movie" aria-selected="false">Movies</button>
       <button type="button" role="tab" data-tab="tv" aria-selected="false">TV</button>
+      <button type="button" role="tab" data-tab="search" aria-selected="false">Search</button>
       <button type="button" role="tab" data-tab="history" aria-selected="false">History</button>
     </div>
+    <button type="button" id="profBtn" class="profbtn" aria-label="Switch profile"></button>
   </div>
   <div id="musicCtl">
   <div class="sub">Creative Commons &amp; public-domain streams from Internet Archive</div>
@@ -135,8 +137,33 @@ input[type=range]{flex:1;min-width:100px}
         <div><div class="fl">Age rating</div><select id="mCert" class="msel" aria-label="Age rating"></select></div>
         <div><div class="fl">Original language</div><select id="mLang" class="msel" aria-label="Language"></select></div>
       </div>
+      <div class="fl">Decade</div><div class="chips" id="mDecades"></div>
       <div class="fl">Genres (match all selected)</div><div class="chips" id="mGenres"></div>
       <div style="margin-top:12px"><button type="button" id="mReset" class="mbtn">Reset filters</button></div>
+    </div>
+  </div>
+  <div id="searchCtl" class="hide">
+    <div class="mrow">
+      <input id="sQ" type="search" placeholder="Search movies, TV, music: title, artist, album…" aria-label="Search everything" autocomplete="off"/>
+      <select id="sSort" class="msel" aria-label="Sort by">
+        <option value="pop">Most popular</option>
+        <option value="rate">Highest rated</option>
+        <option value="new">Newest first</option>
+        <option value="old">Oldest first</option>
+        <option value="az">Title A–Z</option>
+        <option value="za">Title Z–A</option>
+      </select>
+      <button type="button" id="sFiltBtn" class="mbtn">Filters</button>
+    </div>
+    <div class="mrow chips" id="sTypes" role="group" aria-label="Type"></div>
+    <div id="sFilters" class="hide">
+      <div class="fl">Cost</div><div class="chips" id="sCats"></div>
+      <div class="frow">
+        <div><div class="fl">Genre</div><select id="sGenre" class="msel" aria-label="Genre"></select></div>
+        <div><div class="fl">Year</div><div class="chips"><input id="sY1" class="yr" type="number" inputmode="numeric" placeholder="From" min="1900" max="2100" aria-label="From year"/><input id="sY2" class="yr" type="number" inputmode="numeric" placeholder="To" min="1900" max="2100" aria-label="To year"/></div></div>
+      </div>
+      <div class="fl">Decade</div><div class="chips" id="sDecades"></div>
+      <div style="margin-top:12px"><button type="button" id="sReset" class="mbtn">Reset filters</button> <span class="pnote" style="display:inline">Music has no ratings, so “Highest rated” orders albums by track count.</span></div>
     </div>
   </div>
 </header>
@@ -151,6 +178,15 @@ input[type=range]{flex:1;min-width:100px}
       <span>This product uses the TMDB API but is not endorsed or certified by TMDB.<br/>Streaming availability data provided by JustWatch. Availability shown is for the US and can change; tap Watch to see current options.</span>
     </div>
   </section>
+  <section id="searchView" class="hide">
+    <div class="mcount" id="sCount"></div>
+    <div id="sResults"></div>
+    <div id="sSentinel" style="height:40px"></div>
+    <div class="credits">
+      <a href="https://www.themoviedb.org/" target="_blank" rel="noopener"><img src="./tmdb-logo.svg" alt="TMDB logo"/></a>
+      <span>Movie and TV data: this product uses the TMDB API but is not endorsed or certified by TMDB.<br/>Streaming availability data provided by JustWatch. Availability shown is for the US and can change. Music streams from Internet Archive (Creative Commons / public domain).</span>
+    </div>
+  </section>
   <section id="histView" class="hide">
     <div class="histbar">
       <div class="tabs histtabs" role="tablist" aria-label="History type">
@@ -159,6 +195,7 @@ input[type=range]{flex:1;min-width:100px}
       </div>
       <button type="button" id="histClear" class="mbtn">Clear history</button>
     </div>
+    <div class="histwho">Showing history for <b id="histWho"></b> · switch profiles with the button at the top.</div>
     <div class="histcount" id="histCount"></div>
     <div id="histList" class="list"></div>
   </section>
@@ -182,6 +219,8 @@ input[type=range]{flex:1;min-width:100px}
   <audio id="audio" preload="metadata"></audio>
 </div>
 </div>
+<script src="./providers.js"></script>
+<script src="./profiles.js"></script>
 <script src="./catalog.js"></script>
 <script src="./catalog-more.js"></script>
 <script>
@@ -204,6 +243,7 @@ function unlockApp(){
   noticeGate.classList.add('hidden');
   exitScreen.classList.remove('show');
   if(appRoot){ appRoot.classList.remove('locked'); appRoot.style.visibility=''; appRoot.style.pointerEvents=''; }
+  if(window.ACMProfiles){ try{ window.ACMProfiles.start(); }catch(e){} }
 }
 function lockApp(){
   if(appRoot){ appRoot.classList.add('locked'); }
@@ -280,12 +320,14 @@ function repTrack(tracks){
   return best&&best.t;
 }
 
-const HIST_LISTEN='acm_listenHistory_v1';
-const HIST_WATCH='acm_watchHistory_v1';
+// History is stored per profile (see profiles.js). kind is 'listen' or 'watch'.
+const HIST_LISTEN='listen';
+const HIST_WATCH='watch';
 const HIST_MAX=500;
 let histKind='listen';
-function loadHist(key){try{const a=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
-function saveHist(key,arr){try{localStorage.setItem(key,JSON.stringify(arr.slice(0,HIST_MAX)));}catch(e){}}
+function histKey(kind){return window.ACMProfiles?window.ACMProfiles.key(kind):(kind==='listen'?'acm_listenHistory_v1':'acm_watchHistory_v1');}
+function loadHist(kind){try{const a=JSON.parse(localStorage.getItem(histKey(kind))||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+function saveHist(kind,arr){try{localStorage.setItem(histKey(kind),JSON.stringify(arr.slice(0,HIST_MAX)));}catch(e){}}
 function recordListen(t){
   if(!t||!t.u)return;
   const entry={t:t.t,ar:t.ar,al:t.al,u:t.u,id:identOf(t),ts:Date.now()};
@@ -359,9 +401,11 @@ function clearHistory(){
 }
 
 function filtered(){
-  const q = ($('q').value||'').trim().toLowerCase();
+  const nz = (window.FreeMedia&&window.FreeMedia.norm) || (x=>String(x||'').toLowerCase());
+  const toks = nz($('q').value||'').split(' ').filter(Boolean);
   let list = CATALOG;
-  if(q) list = list.filter(t => (t.g+t.ar+t.al+t.t).toLowerCase().includes(q));
+  // every word must appear somewhere in genre / artist / album / track title (accents and punctuation ignored)
+  if(toks.length) list = list.filter(t => { const h = t._n || (t._n = nz(t.g+' '+t.ar+' '+t.al+' '+t.t)); return toks.every(k => h.indexOf(k) >= 0); });
   return list;
 }
 
@@ -478,28 +522,36 @@ $('vol').oninput=()=>{ audio.volume=parseFloat($('vol').value); };
 document.querySelectorAll('.histtabs [data-hist]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation(); histKind=b.dataset.hist; renderHistory();}));
 $('histClear').onclick=()=>clearHistory();
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+window.ACM={get catalog(){return CATALOG;},play:(l,i)=>playList(l,i),identOf:identOf};
+if(window.ACMProfiles){ window.ACMProfiles.onChange(()=>{ const hv=$('histView'); if(hv&&!hv.classList.contains('hide')) renderHistory(); }); }
 render();
 </script>
 <script src="./media.js"></script>
+<script src="./search.js"></script>
 <script>
 (function(){
   const tabs=document.querySelectorAll('.tabs [data-tab]');
   function setTab(t){
     tabs.forEach(b=>{const on=b.dataset.tab===t;b.classList.toggle('active',on);b.setAttribute('aria-selected',on);});
-    const music=t==='music', media=t==='movie'||t==='tv', hist=t==='history';
+    const music=t==='music', media=t==='movie'||t==='tv', hist=t==='history', search=t==='search';
     document.getElementById('musicCtl').classList.toggle('hide',!music);
     document.getElementById('view').classList.toggle('hide',!music);
     document.getElementById('mediaCtl').classList.toggle('hide',!media);
     document.getElementById('mediaView').classList.toggle('hide',!media);
     document.getElementById('histView').classList.toggle('hide',!hist);
-    document.body.classList.toggle('media-mode',media);
-    document.title = music ? 'andchillmedia · Music' : t==='movie'?'andchillmedia · Movies':t==='tv'?'andchillmedia · TV':'andchillmedia · History';
+    document.getElementById('searchCtl').classList.toggle('hide',!search);
+    document.getElementById('searchView').classList.toggle('hide',!search);
+    if(window.ACMSearch){ if(search) window.ACMSearch.show(); else window.ACMSearch.hide(); }
+    document.body.classList.toggle('media-mode',media||search);
+    document.title = music ? 'andchillmedia · Music' : t==='movie'?'andchillmedia · Movies':t==='tv'?'andchillmedia · TV':t==='search'?'andchillmedia · Search':'andchillmedia · History';
     try{localStorage.setItem('freeMediaTab',t);}catch(e){}
     if(media) window.FreeMedia.show(t);
     if(hist && typeof window.renderHistory==='function') window.renderHistory();
     window.scrollTo(0,0);
   }
   tabs.forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+  // Filter panels sit in the sticky header; fold them away once someone scrolls the results so they never cover the list.
+  window.addEventListener('scroll',()=>{ if(window.scrollY>150){ ['mFilters','sFilters'].forEach(id=>{ const el=document.getElementById(id); if(el&&!el.classList.contains('hide')) el.classList.add('hide'); }); } },{passive:true});
   let saved='music';try{saved=localStorage.getItem('freeMediaTab')||'music';}catch(e){}
   if(saved!=='music') setTab(saved);
 })();
