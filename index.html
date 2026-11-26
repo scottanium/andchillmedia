@@ -11,67 +11,8 @@
 <link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png"/>
 <title>andchillmedia</title>
-<link rel="stylesheet" href="./media.css"/>
-<style>
-:root{--bg:#121218;--elev:#1c1c26;--elev2:#262633;--text:#f2f2f7;--muted:#9a9aad;--accent:#78b4ff;--border:#2e2e3a;--danger:#ff6b6b}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100%}
-body{padding-bottom:140px}
-header{position:sticky;top:0;z-index:5;background:rgba(18,18,24,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:12px 16px}
-h1{margin:0;font-size:1.15rem;font-weight:650}
-.sub{color:var(--muted);font-size:.8rem;margin-top:2px}
-.nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
-.nav button,.chip{background:var(--elev);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:6px 12px;font-size:.85rem;cursor:pointer}
-.nav button.active,.chip.active{background:var(--accent);color:#0b1220;border-color:transparent;font-weight:600}
-input[type=search]{flex:1;min-width:140px;background:var(--elev);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 12px}
-main{padding:12px 16px;max-width:900px;margin:0 auto}
-.list{display:flex;flex-direction:column;gap:6px}
-.row{display:flex;gap:10px;align-items:center;background:var(--elev);border:1px solid var(--border);border-radius:12px;padding:10px 12px;cursor:pointer}
-.row:hover{background:var(--elev2)}
-.row .meta{flex:1;min-width:0}
-.row .title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .detail{color:var(--muted);font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.actions{display:flex;gap:6px;flex-shrink:0}
-.actions a,.actions button{background:transparent;border:1px solid var(--border);color:var(--accent);border-radius:8px;padding:4px 8px;font-size:.75rem;text-decoration:none;cursor:pointer}
-.player{position:fixed;left:0;right:0;bottom:0;background:rgba(28,28,38,.96);border-top:1px solid var(--border);padding:10px 14px 14px;backdrop-filter:blur(12px);z-index:10}
-.now{font-size:.85rem;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.controls button{background:var(--elev2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 12px;cursor:pointer}
-.controls button.primary{background:var(--accent);color:#0b1220;border:none;font-weight:700}
-input[type=range]{flex:1;min-width:100px}
-.vol{width:90px}
-.empty{color:var(--muted);padding:24px 8px}
-
-#noticeGate{position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto}
-#noticeGate.hidden{display:none}
-#noticeBox{max-width:560px;width:100%;background:var(--elev);border:1px solid var(--border);border-radius:16px;padding:24px}
-#noticeBox pre{white-space:pre-wrap;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:0.95rem;line-height:1.45;margin:0 0 20px;color:var(--text)}
-#noticeActions{display:flex;gap:12px;flex-wrap:wrap}
-#noticeActions button{border-radius:10px;padding:10px 18px;font-size:0.95rem;cursor:pointer;border:1px solid var(--border);font-family:inherit}
-#noticeAgree{background:var(--accent);color:#0b1220;border:none;font-weight:700}
-#noticeExit{background:var(--elev2);color:var(--text)}
-#exitScreen{position:fixed;inset:0;z-index:10001;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px;text-align:center}
-#exitScreen.show{display:flex;flex-direction:column;gap:16px}
-#appRoot.locked{visibility:hidden;pointer-events:none;height:0;overflow:hidden;padding:0;margin:0}
-
-.art{width:40px;height:40px;flex-shrink:0;border-radius:8px;overflow:hidden;background:linear-gradient(145deg,hsl(var(--h,220) 42% 36%),hsl(var(--h,220) 50% 16%));display:inline-flex;align-items:center;justify-content:center;position:relative;color:#fff;font-weight:700;font-size:1rem;line-height:1;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
-.art::after{content:attr(data-initial);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.45)}
-.art img{width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:1}
-@media (min-width:800px){.art{width:48px;height:48px;border-radius:10px;font-size:1.1rem}}
-.nowrow{display:flex;align-items:center;gap:10px;margin-bottom:6px;min-width:0}
-.nowrow .now{flex:1;min-width:0;margin-bottom:0}
-.nowrow .art{width:44px;height:44px}
-.art.posterish{width:36px;height:54px;border-radius:6px;font-size:.95rem}
-@media (min-width:800px){.art.posterish{width:42px;height:63px}}
-.histbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:space-between;margin:2px 0 12px}
-.histbar .histtabs{margin:0}
-.histcount{color:var(--muted);font-size:.8rem;margin:0 0 8px}
-.when{color:var(--muted);font-size:.72rem;flex-shrink:0;white-space:nowrap}
-.row .rm{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:4px 9px;font-size:.9rem;cursor:pointer;flex-shrink:0;line-height:1}
-.row .rm:hover{color:var(--danger);border-color:var(--danger)}
-@media (max-width:520px){.tabs button{padding:6px 10px;font-size:.82rem}}
-
-</style>
+<link rel="stylesheet" href="./css/media.css"/>
+<link rel="stylesheet" href="./css/base.css"/>
 </head>
 <body>
 
@@ -79,55 +20,45 @@ input[type=range]{flex:1;min-width:100px}
   <div id="noticeBox">
     <pre id="noticeText"></pre>
     <div id="noticeActions">
-      <button type="button" id="noticeAgree">I Agree</button>
-      <button type="button" id="noticeExit">Exit</button>
+      <button type="button" id="noticeAgree" data-text="buttons.agree"></button>
+      <button type="button" id="noticeExit" data-text="buttons.exit"></button>
     </div>
   </div>
 </div>
 <div id="exitScreen">
   <div style="max-width:420px">
-    <p style="font-size:1.05rem;margin:0 0 8px">You must agree to use this app</p>
-    <button type="button" id="reopenNotice" style="border-radius:10px;padding:10px 18px;background:var(--accent);color:#0b1220;border:none;font-weight:700;cursor:pointer">Show notice again</button>
+    <p style="font-size:1.05rem;margin:0 0 8px" data-text="buttons.exitMessage"></p>
+    <button type="button" id="reopenNotice" style="border-radius:10px;padding:10px 18px;background:var(--accent);color:#0b1220;border:none;font-weight:700;cursor:pointer" data-text="buttons.showNoticeAgain"></button>
   </div>
 </div>
 
 <div id="appRoot" class="locked">
 <header>
   <div class="toprow">
-    <h1>andchillmedia</h1>
+    <h1 data-text="appName"></h1>
     <div class="tabs" role="tablist" aria-label="Section">
-      <button type="button" role="tab" class="active" data-tab="music" aria-selected="true">Music</button>
-      <button type="button" role="tab" data-tab="movie" aria-selected="false">Movies</button>
-      <button type="button" role="tab" data-tab="tv" aria-selected="false">TV</button>
-      <button type="button" role="tab" data-tab="search" aria-selected="false">Search</button>
-      <button type="button" role="tab" data-tab="history" aria-selected="false">History</button>
+      <button type="button" role="tab" class="active" data-tab="music" aria-selected="true" data-text="tabs.music"></button>
+      <button type="button" role="tab" data-tab="movie" aria-selected="false" data-text="tabs.movie"></button>
+      <button type="button" role="tab" data-tab="tv" aria-selected="false" data-text="tabs.tv"></button>
+      <button type="button" role="tab" data-tab="search" aria-selected="false" data-text="tabs.search"></button>
+      <button type="button" role="tab" data-tab="history" aria-selected="false" data-text="tabs.history"></button>
     </div>
     <button type="button" id="profBtn" class="profbtn" aria-label="Switch profile"></button>
   </div>
   <div id="musicCtl">
-  <div class="sub">Creative Commons &amp; public-domain streams from Internet Archive</div>
+  <div class="sub" data-text="musicSubtitle"></div>
   <div class="nav" id="crumbs"></div>
   <div class="nav" style="margin-top:8px">
-    <input id="q" type="search" placeholder="Search artists, albums, tracks…" />
-    <button type="button" id="btnShuffle">Shuffle</button>
-    <button type="button" id="btnQueue">Queue</button>
+    <input id="q" type="search" data-placeholder="placeholders.music" />
+    <button type="button" id="btnShuffle" data-text="buttons.shuffle"></button>
+    <button type="button" id="btnQueue" data-text="buttons.queue"></button>
   </div>
   </div>
   <div id="mediaCtl" class="hide">
     <div class="mrow">
-      <input id="mQ" type="search" placeholder="Search…" aria-label="Search titles"/>
-      <select id="mSort" class="msel" aria-label="Sort by">
-        <option value="pop">Most popular</option>
-        <option value="rate">Highest rated</option>
-        <option value="votes">Most votes</option>
-        <option value="new">Newest first</option>
-        <option value="old">Oldest first</option>
-        <option value="az">Title A–Z</option>
-        <option value="za">Title Z–A</option>
-        <option value="rlong">Longest runtime</option>
-        <option value="rshort">Shortest runtime</option>
-      </select>
-      <button type="button" id="mFiltBtn" class="mbtn">Filters</button>
+      <input id="mQ" type="search" data-placeholder="placeholders.media" aria-label="Search titles"/>
+      <select id="mSort" class="msel" aria-label="Sort by" data-options="sorts.media"></select>
+      <button type="button" id="mFiltBtn" class="mbtn" data-text="buttons.filters"></button>
     </div>
     <div id="mFilters" class="hide">
       <div class="fl">Where to watch</div><div class="chips" id="mCats"></div>
@@ -139,21 +70,14 @@ input[type=range]{flex:1;min-width:100px}
       </div>
       <div class="fl">Decade</div><div class="chips" id="mDecades"></div>
       <div class="fl">Genres (match all selected)</div><div class="chips" id="mGenres"></div>
-      <div style="margin-top:12px"><button type="button" id="mReset" class="mbtn">Reset filters</button></div>
+      <div style="margin-top:12px"><button type="button" id="mReset" class="mbtn" data-text="buttons.resetFilters"></button></div>
     </div>
   </div>
   <div id="searchCtl" class="hide">
     <div class="mrow">
-      <input id="sQ" type="search" placeholder="Search movies, TV, music: title, artist, album…" aria-label="Search everything" autocomplete="off"/>
-      <select id="sSort" class="msel" aria-label="Sort by">
-        <option value="pop">Most popular</option>
-        <option value="rate">Highest rated</option>
-        <option value="new">Newest first</option>
-        <option value="old">Oldest first</option>
-        <option value="az">Title A–Z</option>
-        <option value="za">Title Z–A</option>
-      </select>
-      <button type="button" id="sFiltBtn" class="mbtn">Filters</button>
+      <input id="sQ" type="search" data-placeholder="placeholders.searchAll" aria-label="Search everything" autocomplete="off"/>
+      <select id="sSort" class="msel" aria-label="Sort by" data-options="sorts.search"></select>
+      <button type="button" id="sFiltBtn" class="mbtn" data-text="buttons.filters"></button>
     </div>
     <div class="mrow chips" id="sTypes" role="group" aria-label="Type"></div>
     <div id="sFilters" class="hide">
@@ -163,7 +87,7 @@ input[type=range]{flex:1;min-width:100px}
         <div><div class="fl">Year</div><div class="chips"><input id="sY1" class="yr" type="number" inputmode="numeric" placeholder="From" min="1900" max="2100" aria-label="From year"/><input id="sY2" class="yr" type="number" inputmode="numeric" placeholder="To" min="1900" max="2100" aria-label="To year"/></div></div>
       </div>
       <div class="fl">Decade</div><div class="chips" id="sDecades"></div>
-      <div style="margin-top:12px"><button type="button" id="sReset" class="mbtn">Reset filters</button> <span class="pnote" style="display:inline">Music has no ratings, so “Highest rated” orders albums by track count.</span></div>
+      <div style="margin-top:12px"><button type="button" id="sReset" class="mbtn" data-text="buttons.resetFilters"></button> <span class="pnote" style="display:inline">Music has no ratings, so “Highest rated” orders albums by track count.</span></div>
     </div>
   </div>
 </header>
@@ -175,7 +99,7 @@ input[type=range]{flex:1;min-width:100px}
     <div id="mSentinel"></div>
     <div class="credits">
       <a href="https://www.themoviedb.org/" target="_blank" rel="noopener"><img src="./tmdb-logo.svg" alt="TMDB logo"/></a>
-      <span>This product uses the TMDB API but is not endorsed or certified by TMDB.<br/>Streaming availability data provided by JustWatch. Availability shown is for the US and can change; tap Watch to see current options.</span>
+      <span data-html="credits.media"></span>
     </div>
   </section>
   <section id="searchView" class="hide">
@@ -184,7 +108,7 @@ input[type=range]{flex:1;min-width:100px}
     <div id="sSentinel" style="height:40px"></div>
     <div class="credits">
       <a href="https://www.themoviedb.org/" target="_blank" rel="noopener"><img src="./tmdb-logo.svg" alt="TMDB logo"/></a>
-      <span>Movie and TV data: this product uses the TMDB API but is not endorsed or certified by TMDB.<br/>Streaming availability data provided by JustWatch. Availability shown is for the US and can change. Music streams from Internet Archive (Creative Commons / public domain).</span>
+      <span data-html="credits.search"></span>
     </div>
   </section>
   <section id="histView" class="hide">
@@ -193,7 +117,7 @@ input[type=range]{flex:1;min-width:100px}
         <button type="button" class="active" data-hist="listen" aria-selected="true">Listen</button>
         <button type="button" data-hist="watch" aria-selected="false">Watch</button>
       </div>
-      <button type="button" id="histClear" class="mbtn">Clear history</button>
+      <button type="button" id="histClear" class="mbtn" data-text="buttons.clearHistory"></button>
     </div>
     <div class="histwho">Showing history for <b id="histWho"></b> · switch profiles with the button at the top.</div>
     <div class="histcount" id="histCount"></div>
@@ -206,12 +130,12 @@ input[type=range]{flex:1;min-width:100px}
 <div class="player">
   <div class="nowrow">
     <span class="art" id="nowArt" style="--h:220" data-initial="♪" aria-hidden="true"></span>
-    <div class="now" id="now">Nothing playing</div>
+    <div class="now" id="now" data-text="nothingPlaying"></div>
   </div>
   <div class="controls">
-    <button type="button" id="prev">Prev</button>
-    <button type="button" class="primary" id="play">Play</button>
-    <button type="button" id="next">Next</button>
+    <button type="button" id="prev" data-text="buttons.prev"></button>
+    <button type="button" class="primary" id="play" data-text="buttons.play"></button>
+    <button type="button" id="next" data-text="buttons.next"></button>
     <input id="seek" type="range" min="0" max="1000" value="0"/>
     <span id="time" class="sub">0:00</span>
     <input id="vol" class="vol" type="range" min="0" max="1" step="0.01" value="0.9"/>
@@ -219,367 +143,28 @@ input[type=range]{flex:1;min-width:100px}
   <audio id="audio" preload="metadata"></audio>
 </div>
 </div>
-<script src="./providers.js"></script>
-<script src="./profiles.js"></script>
+<script src="./config/generated-config.js"></script>
+<script src="./js/ui-text.js"></script>
+<script src="./js/helpers.js"></script>
+<script src="./js/providers.js"></script>
+<script src="./js/profiles.js"></script>
 <script src="./catalog.js"></script>
 <script src="./catalog-more.js"></script>
-<script>
-
-const NOTICE_BODY = 'Before you use this software\n\nThis software is free and provided "AS IS," with no warranty of any kind.\nYou use it entirely at your own risk. The author is not responsible for any\ndamage, data loss, account issues, or other problems that come from using it.\n\nSome tools may interact with third-party games or services. Using them may\nbreak those services\' rules, and you alone are responsible for how you use\nthis software.\n\nBy downloading, installing, or using this software, you agree to these terms\nand to the full license in the LICENSE file.\n\n';
-const AGREE_KEY = 'freeMusicUserNoticeAgreed_v1';
-const noticeTextEl = document.getElementById('noticeText');
-const noticeGate = document.getElementById('noticeGate');
-const exitScreen = document.getElementById('exitScreen');
-const appRoot = document.getElementById('appRoot');
-noticeTextEl.textContent = NOTICE_BODY;
-
-function hasAgreed(){
-  try { return localStorage.getItem(AGREE_KEY) === '1'; } catch(e){ return false; }
-}
-function setAgreed(){
-  try { localStorage.setItem(AGREE_KEY, '1'); } catch(e){}
-}
-function unlockApp(){
-  noticeGate.classList.add('hidden');
-  exitScreen.classList.remove('show');
-  if(appRoot){ appRoot.classList.remove('locked'); appRoot.style.visibility=''; appRoot.style.pointerEvents=''; }
-  if(window.ACMProfiles){ try{ window.ACMProfiles.start(); }catch(e){} }
-}
-function lockApp(){
-  if(appRoot){ appRoot.classList.add('locked'); }
-  noticeGate.classList.remove('hidden');
-}
-function showExit(){
-  noticeGate.classList.add('hidden');
-  exitScreen.classList.add('show');
-  if(appRoot){ appRoot.classList.add('locked'); }
-  try { window.close(); } catch(e){}
-}
-document.getElementById('noticeAgree').onclick = function(){ setAgreed(); unlockApp(); };
-document.getElementById('noticeExit').onclick = function(){ showExit(); };
-document.getElementById('reopenNotice').onclick = function(){
-  exitScreen.classList.remove('show');
-  lockApp();
-};
-if(hasAgreed()){ unlockApp(); } else { lockApp(); }
-
-const CATALOG = (window.FREE_MUSIC_CATALOG || []).concat(window.FREE_MUSIC_CATALOG_MORE || []);
-const genres = [...new Set(CATALOG.map(t=>t.g))].sort();
-let view = {level:'genre', genre:null, artist:null, album:null};
-let queue = [];
-let qIndex = -1;
-let shuffle = false;
-const audio = document.getElementById('audio');
-const $ = (id)=>document.getElementById(id);
-const esc=(s)=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-function fmt(s){s=Math.floor(s||0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
-function hue(s){let h=0;s=String(s||'');for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)%360;}
-function initial(s){const t=String(s||'').trim();return (t[0]||'?').toUpperCase();}
-function identOf(t){
-  if(t&&t.id) return String(t.id);
-  const p=(t&&t.p)||'';
-  const i=p.indexOf('/details/');
-  if(i<0) return '';
-  try{return decodeURIComponent(p.slice(i+9).split(/[?#]/)[0]).replace(/\/+$/,'');}catch(e){return p.slice(i+9).split(/[?#]/)[0].replace(/\/+$/,'');}
-}
-function artUrl(t){
-  const id=identOf(t);
-  return id?('https://archive.org/services/img/'+encodeURIComponent(id)):'';
-}
-function artHTML(label, track, extraClass, urlOverride){
-  const u=urlOverride!==undefined?urlOverride:artUrl(track);
-  const ini=esc(initial(label));
-  const img=u?`<img loading="lazy" decoding="async" alt="" src="${esc(u)}" onerror="this.remove()">`:'';
-  return `<span class="art${extraClass?' '+extraClass:''}" style="--h:${hue(label)}" data-initial="${ini}" aria-hidden="true">${img}</span>`;
-}
-function setNowArt(t){
-  const el=$('nowArt'); if(!el) return;
-  if(!t){ el.style.setProperty('--h','220'); el.setAttribute('data-initial','♪'); el.innerHTML=''; return; }
-  const label=t.al||t.t||'';
-  el.style.setProperty('--h', String(hue(label)));
-  el.setAttribute('data-initial', initial(label));
-  const u=artUrl(t);
-  el.innerHTML=u?`<img loading="lazy" decoding="async" alt="" src="${esc(u)}" onerror="this.remove()">`:'';
-}
-function firstAlbumTrack(tracks){
-  const sorted=tracks.slice().sort((a,b)=>(a.d||'9999').localeCompare(b.d||'9999')||a.al.localeCompare(b.al)||((a.n||0)-(b.n||0)));
-  return sorted[0];
-}
-function repTrack(tracks){
-  const map=new Map();
-  for(const t of tracks){
-    const k=t.ar+'\0'+t.al;
-    if(!map.has(k)) map.set(k,{t,n:0,d:t.d||'9999'});
-    map.get(k).n++;
-  }
-  let best=null;
-  for(const v of map.values()){
-    if(!best||v.n>best.n||(v.n===best.n&&(v.d<best.d||(v.d===best.d&&v.t.al.localeCompare(best.t.al)<0)))) best=v;
-  }
-  return best&&best.t;
-}
-
-// History is stored per profile (see profiles.js). kind is 'listen' or 'watch'.
-const HIST_LISTEN='listen';
-const HIST_WATCH='watch';
-const HIST_MAX=500;
-let histKind='listen';
-function histKey(kind){return window.ACMProfiles?window.ACMProfiles.key(kind):(kind==='listen'?'acm_listenHistory_v1':'acm_watchHistory_v1');}
-function loadHist(kind){try{const a=JSON.parse(localStorage.getItem(histKey(kind))||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
-function saveHist(kind,arr){try{localStorage.setItem(histKey(kind),JSON.stringify(arr.slice(0,HIST_MAX)));}catch(e){}}
-function recordListen(t){
-  if(!t||!t.u)return;
-  const entry={t:t.t,ar:t.ar,al:t.al,u:t.u,id:identOf(t),ts:Date.now()};
-  const arr=loadHist(HIST_LISTEN);
-  if(arr[0]&&arr[0].u===entry.u){arr[0].ts=entry.ts; if(!arr[0].id) arr[0].id=entry.id;}
-  else arr.unshift(entry);
-  saveHist(HIST_LISTEN,arr);
-  const hv=$('histView');
-  if(hv&&!hv.classList.contains('hide')&&histKind==='listen') renderHistory();
-}
-function ago(ts){
-  const s=Math.max(0,(Date.now()-ts)/1000);
-  if(s<45) return 'just now';
-  if(s<3600) return Math.round(s/60)+'m ago';
-  if(s<86400) return Math.round(s/3600)+'h ago';
-  if(s<6*86400) return Math.round(s/86400)+'d ago';
-  try{return new Date(ts).toLocaleDateString();}catch(e){return '';}
-}
-function renderHistory(){
-  const list=$('histList'), count=$('histCount');
-  if(!list) return;
-  document.querySelectorAll('.histtabs [data-hist]').forEach(b=>{
-    const on=b.dataset.hist===histKind; b.classList.toggle('active',on); b.setAttribute('aria-selected',on);
-  });
-  list.innerHTML='';
-  if(histKind==='listen'){
-    const arr=loadHist(HIST_LISTEN);
-    count.textContent=arr.length? (arr.length+' play'+(arr.length===1?'':'s')) : '';
-    if(!arr.length){list.innerHTML='<div class="empty">Nothing played yet. Tracks you start will show up here, only on this device.</div>';return;}
-    arr.forEach((h,i)=>{
-      const row=document.createElement('div'); row.className='row';
-      const track={t:h.t,ar:h.ar,al:h.al,u:h.u,id:h.id,p:h.id?('https://archive.org/details/'+h.id):''};
-      row.innerHTML=`${artHTML(h.al||h.t,track)}<div class="meta"><div class="title">${esc(h.t)}</div><div class="detail">${esc(h.ar)} · ${esc(h.al)}</div></div><span class="when">${esc(ago(h.ts))}</span><button type="button" class="rm" data-rm="${i}" aria-label="Remove from history">✕</button>`;
-      row.onclick=(e)=>{
-        const rm=e.target.closest('[data-rm]');
-        if(rm){ const a=loadHist(HIST_LISTEN); a.splice(+rm.dataset.rm,1); saveHist(HIST_LISTEN,a); renderHistory(); return; }
-        const found=CATALOG.find(t=>t.u===h.u)||track;
-        playList([found],0);
-      };
-      list.appendChild(row);
-    });
-  } else {
-    const arr=loadHist(HIST_WATCH);
-    count.textContent=arr.length? (arr.length+' event'+(arr.length===1?'':'s')) : '';
-    if(!arr.length){list.innerHTML='<div class="empty">No titles opened yet. Opening a movie or show, or tapping Watch, is saved here on this device only.</div>';return;}
-    arr.forEach((h,i)=>{
-      const row=document.createElement('div'); row.className='row';
-      const kind=h.k==='tv'?'TV':'Movie';
-      let ev='Opened';
-      if(h.ev==='watch') ev=h.svc?('Watch · '+h.svc):'Watch';
-      else if(h.ev==='search') ev=h.svc?('Search on '+h.svc):'Search';
-      const tile=artHTML(h.t, null, 'posterish', h.pp?('https://image.tmdb.org/t/p/w185'+h.pp):'');
-      row.innerHTML=`${tile}<div class="meta"><div class="title">${esc(h.t)}</div><div class="detail">${esc(kind)} · ${esc(ev)}</div></div><span class="when">${esc(ago(h.ts))}</span><button type="button" class="rm" data-rm="${i}" aria-label="Remove from history">✕</button>`;
-      row.onclick=async (e)=>{
-        const rm=e.target.closest('[data-rm]');
-        if(rm){ const a=loadHist(HIST_WATCH); a.splice(+rm.dataset.rm,1); saveHist(HIST_WATCH,a); renderHistory(); return; }
-        if(!window.FreeMedia||!h.i||!h.k)return;
-        const ok=await window.FreeMedia.openById(h.k,h.i);
-        if(!ok) list.insertAdjacentHTML('afterbegin','<div class="empty">That title is no longer in the catalog.</div>');
-      };
-      list.appendChild(row);
-    });
-  }
-}
-window.renderHistory=renderHistory;
-function clearHistory(){
-  const label=histKind==='listen'?'listen':'watch';
-  if(!confirm('Clear all '+label+' history? This cannot be undone.')) return;
-  saveHist(histKind==='listen'?HIST_LISTEN:HIST_WATCH,[]);
-  renderHistory();
-}
-
-function filtered(){
-  const nz = (window.FreeMedia&&window.FreeMedia.norm) || (x=>String(x||'').toLowerCase());
-  const toks = nz($('q').value||'').split(' ').filter(Boolean);
-  let list = CATALOG;
-  // every word must appear somewhere in genre / artist / album / track title (accents and punctuation ignored)
-  if(toks.length) list = list.filter(t => { const h = t._n || (t._n = nz(t.g+' '+t.ar+' '+t.al+' '+t.t)); return toks.every(k => h.indexOf(k) >= 0); });
-  return list;
-}
-
-function renderCrumbs(){
-  const el=$('crumbs'); el.innerHTML='';
-  const add=(label, fn, active)=>{
-    const b=document.createElement('button'); b.type='button'; b.textContent=label; if(active) b.className='active'; b.onclick=fn; el.appendChild(b);
-  };
-  add('Genres', ()=>{view={level:'genre',genre:null,artist:null,album:null}; render();}, view.level==='genre');
-  if(view.genre) add(view.genre, ()=>{view.level='artist'; view.artist=null; view.album=null; render();}, view.level==='artist');
-  if(view.artist) add(view.artist, ()=>{view.level='album'; view.album=null; render();}, view.level==='album');
-  if(view.album) add(view.album, ()=>{}, true);
-}
-
-function playList(list, start=0){
-  if(!list.length) return;
-  queue=list; qIndex=start; playCurrent();
-}
-
-function playCurrent(){
-  if(!hasAgreed()){ lockApp(); return; }
-  const t=queue[qIndex]; if(!t) return;
-  audio.src=t.u; audio.play().catch(()=>{});
-  $('now').textContent = t.ar+' — '+t.t+' · '+t.al;
-  setNowArt(t);
-  $('play').textContent='Pause';
-  recordListen(t);
-  const art=artUrl(t);
-  if(navigator.mediaSession){
-    navigator.mediaSession.metadata = new MediaMetadata({title:t.t, artist:t.ar, album:t.al, artwork: art?[{src:art, sizes:'200x200', type:'image/jpeg'}]:[]});
-    navigator.mediaSession.setActionHandler('previoustrack', ()=>$('prev').click());
-    navigator.mediaSession.setActionHandler('nexttrack', ()=>$('next').click());
-    navigator.mediaSession.setActionHandler('play', ()=>audio.play());
-    navigator.mediaSession.setActionHandler('pause', ()=>audio.pause());
-  }
-}
-
-function render(){
-  renderCrumbs();
-  const root=$('view'); root.innerHTML='';
-  const list=filtered();
-  if(view.level==='genre'){
-    const gs=[...new Set(list.map(t=>t.g))].sort();
-    gs.forEach(g=>{
-      const tracks=list.filter(t=>t.g===g);
-      const count=tracks.length;
-      const row=document.createElement('div'); row.className='row';
-      row.innerHTML=`${artHTML(g, repTrack(tracks))}<div class="meta"><div class="title">${esc(g)}</div><div class="detail">${count} tracks</div></div>
-        <div class="actions"><button type="button" data-playgenre="${esc(g)}">Play</button></div>`;
-      row.onclick=(e)=>{ if(e.target.closest('[data-playgenre]')){ playList(tracks.slice().sort((a,b)=>(a.d||'').localeCompare(b.d||'')||a.n-b.n)); return;} view={level:'artist',genre:g,artist:null,album:null}; render();};
-      root.appendChild(row);
-    });
-  } else if(view.level==='artist'){
-    const arts=[...new Set(list.filter(t=>t.g===view.genre).map(t=>t.ar))].sort((a,b)=>a.localeCompare(b));
-    arts.forEach(ar=>{
-      const tracks=list.filter(t=>t.g===view.genre&&t.ar===ar);
-      const albums=[...new Set(tracks.map(t=>t.al))].length;
-      const row=document.createElement('div'); row.className='row';
-      row.innerHTML=`${artHTML(ar, firstAlbumTrack(tracks))}<div class="meta"><div class="title">${esc(ar)}</div><div class="detail">${albums} albums · ${tracks.length} tracks</div></div>`;
-      row.onclick=()=>{view.level='album'; view.artist=ar; view.album=null; render();};
-      root.appendChild(row);
-    });
-  } else if(view.level==='album'){
-    const tracks=list.filter(t=>t.g===view.genre&&t.ar===view.artist);
-    const albums=[...new Set(tracks.map(t=>t.al))];
-    albums.sort((a,b)=>{
-      const da=tracks.find(t=>t.al===a)?.d||'9999'; const db=tracks.find(t=>t.al===b)?.d||'9999';
-      return da.localeCompare(db)||a.localeCompare(b);
-    });
-    albums.forEach(al=>{
-      const ts=tracks.filter(t=>t.al===al).sort((a,b)=>a.n-b.n);
-      const d=ts[0]?.d||'';
-      const z=ts[0]?.z||'';
-      const row=document.createElement('div'); row.className='row';
-      row.innerHTML=`${artHTML(al, ts[0])}<div class="meta"><div class="title">${esc(al)}</div><div class="detail">${esc(d||'Unknown date')} · ${ts.length} tracks</div></div>
-        <div class="actions">${z?`<a href="${esc(z)}" download>Album zip</a>`:''}<button type="button" data-play>Play</button></div>`;
-      row.onclick=(e)=>{ if(e.target.closest('[data-play]')){ playList(ts); return;} if(e.target.closest('a')) return; view.level='track'; view.album=al; render();};
-      root.appendChild(row);
-    });
-  } else {
-    const ts=list.filter(t=>t.g===view.genre&&t.ar===view.artist&&t.al===view.album).sort((a,b)=>a.n-b.n);
-    ts.forEach((t,i)=>{
-      const row=document.createElement('div'); row.className='row';
-      row.innerHTML=`${artHTML(t.al||t.t, t)}<div class="meta"><div class="title">${esc((t.n? t.n+'. ':'')+t.t)}</div><div class="detail">${esc(t.ar)}</div></div>
-        <div class="actions"><a href="${esc(t.u)}" download>Download</a><button type="button" data-play>Play</button></div>`;
-      row.onclick=(e)=>{ if(e.target.closest('a')) return; playList(ts,i); };
-      root.appendChild(row);
-    });
-  }
-  if(!root.children.length){ root.innerHTML='<div class="empty">No matches.</div>'; }
-}
-
-$('q').oninput=()=>render();
-$('btnShuffle').onclick=()=>{shuffle=!shuffle; $('btnShuffle').classList.toggle('active',shuffle);};
-$('btnQueue').onclick=()=>{view.level='track'; const root=$('view'); root.innerHTML='';
-  if(!queue.length){root.innerHTML='<div class="empty">Queue empty.</div>'; return;}
-  queue.forEach((t,i)=>{
-    const row=document.createElement('div'); row.className='row'; if(i===qIndex) row.style.outline='1px solid var(--accent)';
-    row.innerHTML=`${artHTML(t.al||t.t, t)}<div class="meta"><div class="title">${esc(t.t)}</div><div class="detail">${esc(t.ar)} · ${esc(t.al)}</div></div>`;
-    row.onclick=()=>{qIndex=i; playCurrent();};
-    root.appendChild(row);
-  });
-};
-$('play').onclick=()=>{ if(audio.paused){ if(!audio.src && queue[qIndex]) playCurrent(); else audio.play(); $('play').textContent='Pause';} else {audio.pause(); $('play').textContent='Play';}};
-$('prev').onclick=()=>{ if(qIndex>0){qIndex--; playCurrent();} };
-$('next').onclick=()=>{
-  if(shuffle && queue.length){ qIndex=Math.floor(Math.random()*queue.length); playCurrent(); return; }
-  if(qIndex<queue.length-1){qIndex++; playCurrent();}
-};
-audio.addEventListener('timeupdate',()=>{ if(audio.duration){ $('seek').value=Math.floor(1000*audio.currentTime/audio.duration); $('time').textContent=fmt(audio.currentTime);} });
-audio.addEventListener('ended',()=>$('next').click());
-$('seek').oninput=()=>{ if(audio.duration) audio.currentTime = ($('seek').value/1000)*audio.duration; };
-$('vol').oninput=()=>{ audio.volume=parseFloat($('vol').value); };
-document.querySelectorAll('.histtabs [data-hist]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation(); histKind=b.dataset.hist; renderHistory();}));
-$('histClear').onclick=()=>clearHistory();
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
-window.ACM={get catalog(){return CATALOG;},play:(l,i)=>playList(l,i),identOf:identOf};
-if(window.ACMProfiles){ window.ACMProfiles.onChange(()=>{ const hv=$('histView'); if(hv&&!hv.classList.contains('hide')) renderHistory(); }); }
-render();
-</script>
-<script src="./media.js"></script>
-<script src="./search.js"></script>
-<script>
-(function(){
-  const tabs=document.querySelectorAll('.tabs [data-tab]');
-  function setTab(t){
-    tabs.forEach(b=>{const on=b.dataset.tab===t;b.classList.toggle('active',on);b.setAttribute('aria-selected',on);});
-    const music=t==='music', media=t==='movie'||t==='tv', hist=t==='history', search=t==='search';
-    document.getElementById('musicCtl').classList.toggle('hide',!music);
-    document.getElementById('view').classList.toggle('hide',!music);
-    document.getElementById('mediaCtl').classList.toggle('hide',!media);
-    document.getElementById('mediaView').classList.toggle('hide',!media);
-    document.getElementById('histView').classList.toggle('hide',!hist);
-    document.getElementById('searchCtl').classList.toggle('hide',!search);
-    document.getElementById('searchView').classList.toggle('hide',!search);
-    if(window.ACMSearch){ if(search) window.ACMSearch.show(); else window.ACMSearch.hide(); }
-    document.body.classList.toggle('media-mode',media||search);
-    document.title = music ? 'andchillmedia · Music' : t==='movie'?'andchillmedia · Movies':t==='tv'?'andchillmedia · TV':t==='search'?'andchillmedia · Search':'andchillmedia · History';
-    try{localStorage.setItem('freeMediaTab',t);}catch(e){}
-    if(media) window.FreeMedia.show(t);
-    if(hist && typeof window.renderHistory==='function') window.renderHistory();
-    window.scrollTo(0,0);
-  }
-  tabs.forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
-  // Filter panels sit in the sticky header; fold them away once someone scrolls the results so they never cover the list.
-  window.addEventListener('scroll',()=>{ if(window.scrollY>150){ ['mFilters','sFilters'].forEach(id=>{ const el=document.getElementById(id); if(el&&!el.classList.contains('hide')) el.classList.add('hide'); }); } },{passive:true});
-  let saved='music';try{saved=localStorage.getItem('freeMediaTab')||'music';}catch(e){}
-  if(saved!=='music') setTab(saved);
-})();
-</script>
-<style>
-#refreshBtn{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:9000;background:#2d6cdf;color:#fff;border:none;border-radius:999px;padding:9px 14px;font:600 14px system-ui,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.4);cursor:pointer}
-#refreshBtn.hidden{display:none}
-
-</style>
+<script src="./catalog-more2.js"></script>
+<script src="./js/notice.js"></script>
+<script src="./js/music.js"></script>
+<script src="./js/history.js"></script>
+<script src="./js/music-browse.js"></script>
+<script src="./js/music-controls.js"></script>
+<script src="./js/sw-register.js"></script>
+<script src="./js/music-init.js"></script>
+<script src="./js/media-data.js"></script>
+<script src="./js/media-sheet.js"></script>
+<script src="./js/media-ui.js"></script>
+<script src="./js/search.js"></script>
+<script src="./js/tabs.js"></script>
 <button id="refreshBtn" type="button" aria-label="Refresh app">&#x21bb; Refresh</button>
-<script>
-(function(){
-  var btn=document.getElementById('refreshBtn');
-  btn.addEventListener('click',async function(){
-    btn.textContent='Refreshing...';
-    try{
-      if('serviceWorker' in navigator){var regs=await navigator.serviceWorker.getRegistrations();for(var r of regs){await r.update().catch(function(){});await r.unregister();}}
-      if(window.caches){var ks=await caches.keys();await Promise.all(ks.map(function(k){return caches.delete(k);}));}
-    }catch(e){}
-    location.replace(location.pathname+'?r='+Date.now());
-  });
-  function upd(){var fs=document.fullscreenElement||document.webkitFullscreenElement;btn.classList.toggle('hidden',!!fs);}
-  document.addEventListener('fullscreenchange',upd);
-  document.addEventListener('webkitfullscreenchange',upd);
-  // iOS native video fullscreen
-  document.addEventListener('webkitbeginfullscreen',function(){btn.classList.add('hidden');},true);
-  document.addEventListener('webkitendfullscreen',function(){btn.classList.remove('hidden');},true);
-})();
-</script>
+<script src="./js/refresh.js"></script>
+<script src="./js/stage.js"></script>
 </body>
 </html>
